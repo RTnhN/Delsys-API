@@ -14,6 +14,11 @@ See [AeroPy Documentation](#AeroPy-Documentation)
 5. If you are using an IDE, set up your python interpreter/virtual environment from the settings.
 6. Make sure the Trigno base station or lite are plugged in, then Run `DelsysPythonDemo.py`
 
+### Lab Streaming Layer (LSL) Output
+- EMG channels detected during configuration are now streamed to an LSL outlet named `DelsysEMG`.
+- Install the `pylsl` package (included in `requirements.txt`) and start data collection to publish EMG samples.
+- Downstream tools can discover the outlet via the LSL network and subscribe to the EMG data stream in real time.
+
 
 ## Example App Instructions
 

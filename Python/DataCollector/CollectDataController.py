@@ -4,10 +4,17 @@ This is the controller for the GUI that lets you connect to a base, scan via rf 
 """
 
 from collections import deque
+import uuid
 
 from Plotter.GenericPlot import *
 from AeroPy.TrignoBase import *
 from AeroPy.DataManager import *
+
+try:
+    from pylsl import StreamInfo, StreamOutlet
+except ImportError:  # pylsl is optional until installed
+    StreamInfo = None
+    StreamOutlet = None
 
 clr.AddReference("System.Collections")
 
@@ -29,6 +36,11 @@ class PlottingManagement():
         self.newTransform = None
 
         self.streamYTData = False # set to True to stream data in (T, Y) format (T = time stamp in seconds Y = sample value)
+        self.lsl_outlet = None
+        self.lsl_info = None
+        self.lsl_channel_labels = []
+        self.lsl_stream_id = f"delsys_trigno_{uuid.uuid4()}"
+        self._lsl_warning_logged = False
 
     def streaming(self):
         """This is the data processing thread"""
@@ -74,6 +86,7 @@ class PlottingManagement():
     def threadManager(self, start_trigger, stop_trigger):
         """Handles the threads for the DataCollector gui"""
         self.emg_plot = deque()
+        self.init_lsl_stream()
 
         # Start standard data stream (only channel data, no time values)
         if not self.streamYTData:
@@ -118,3 +131,46 @@ class PlottingManagement():
         self.collect_data_window.exportcsv_button.setStyleSheet("color : white")
         print("Trigger Stop - Data Collection Complete")
         self.DataHandler.processData(self.emg_plot)
+
+    def init_lsl_stream(self):
+        if StreamOutlet is None:
+            if not self._lsl_warning_logged:
+                print("pylsl not available - EMG data will not stream over LSL. Install pylsl to enable it.")
+                self._lsl_warning_logged = True
+            return
+
+        emg_labels = self.base.get_emg_channel_labels()
+        if not emg_labels:
+            self.stop_lsl_stream()
+            return
+
+        if self.lsl_outlet and emg_labels == self.lsl_channel_labels:
+            return
+
+        sample_rate = self.base.get_emg_sample_rate()
+        if sample_rate <= 0:
+            sample_rate = 0.0
+
+        info = StreamInfo('DelsysEMG', 'EMG', len(emg_labels), sample_rate, 'float32', self.lsl_stream_id)
+        channels = info.desc().append_child("channels")
+        for label in emg_labels:
+            channel = channels.append_child("channel")
+            channel.append_child_value("label", label)
+            channel.append_child_value("type", "EMG")
+
+        self.lsl_info = info
+        self.lsl_outlet = StreamOutlet(info)
+        self.lsl_channel_labels = emg_labels
+        print(f"LSL outlet created for {len(emg_labels)} EMG channel(s)")
+
+    def stop_lsl_stream(self):
+        self.lsl_outlet = None
+        self.lsl_info = None
+        self.lsl_channel_labels = []
+
+    def push_emg_chunk(self, chunk):
+        if not chunk or StreamOutlet is None:
+            return
+        self.init_lsl_stream()
+        if self.lsl_outlet:
+            self.lsl_outlet.push_chunk(chunk)

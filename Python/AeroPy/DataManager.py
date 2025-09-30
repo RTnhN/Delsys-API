@@ -20,6 +20,7 @@ class DataKernel():
         """Processes the data from the DelsysAPI and place it in the data_queue argument"""
         outArr = self.GetData()
         if outArr is not None:
+            emg_chunk = self._extract_emg_chunk(outArr)
             for i in range(len(outArr)):
                 self.allcollectiondata[i].extend(outArr[i][0].tolist())
             try:
@@ -35,6 +36,8 @@ class DataKernel():
                     pass
             except IndexError:
                 pass
+            if emg_chunk:
+                self.trigno_base.collection_data_handler.push_emg_chunk(emg_chunk)
 
     def processYTData(self, data_queue):
         """Processes the data from the DelsysAPI and place it in the data_queue argument"""
@@ -58,6 +61,9 @@ class DataKernel():
                     pass
             except IndexError:
                 pass
+            emg_chunk = self._extract_emg_chunk(outArr)
+            if emg_chunk:
+                self.trigno_base.collection_data_handler.push_emg_chunk(emg_chunk)
 
     def GetData(self):
         """ Check if data ready from DelsysAPI via Aero CheckDataQueue() - Return True if data is ready
@@ -110,3 +116,38 @@ class DataKernel():
                 print("Exception occured in GetYTData() - " + str(e))
         else:
             return None
+
+    def _extract_emg_chunk(self, channel_data):
+        """Prepare EMG samples for LSL streaming."""
+        if not hasattr(self.trigno_base, 'emgChannelsIdx'):
+            return None
+        emg_indices = self.trigno_base.emgChannelsIdx
+        if not emg_indices:
+            return None
+
+        chunk = []
+        try:
+            reference_idx = emg_indices[0]
+            reference_samples = channel_data[reference_idx][0]
+            length = len(reference_samples)
+        except (IndexError, TypeError):
+            return None
+
+        if length == 0:
+            return None
+
+        for sample_idx in range(length):
+            sample = []
+            for channel_idx in emg_indices:
+                try:
+                    raw_value = channel_data[channel_idx][0][sample_idx]
+                except (IndexError, TypeError):
+                    raw_value = 0.0
+                value = getattr(raw_value, 'Item2', raw_value)
+                try:
+                    sample.append(float(value))
+                except (TypeError, ValueError):
+                    sample.append(0.0)
+            chunk.append(sample)
+
+        return chunk

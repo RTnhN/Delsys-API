@@ -30,6 +30,9 @@ class TrignoBase():
         self.TrigBase = AeroPy()
         self.collection_data_handler = collection_data_handler
         self.channel_guids = []
+        self.channel_names = []
+        self.channel_types = []
+        self.channel_sample_rates = []
         self.channelcount = 0
         self.pairnumber = 0
         self.csv_writer = CsvWriter()
@@ -116,6 +119,9 @@ class TrignoBase():
                 self.emgChannelsIdx = []
                 globalChannelIdx = 0
                 self.channel_guids = []
+                self.channel_names = []
+                self.channel_types = []
+                self.channel_sample_rates = []
 
                 for i in range(self.SensorCount):
 
@@ -139,6 +145,9 @@ class TrignoBase():
                             get_all_channels = True
                             if get_all_channels:
                                 self.channel_guids.append(ch_guid)
+                                self.channel_names.append(ch_object.Name)
+                                self.channel_types.append(ch_type)
+                                self.channel_sample_rates.append(sample_rate)
                                 globalChannelIdx += 1
 
                                 #CSV Export Config
@@ -162,6 +171,9 @@ class TrignoBase():
                             if not get_all_channels:
                                 if ch_type == 'EMG':
                                     self.channel_guids.append(ch_guid)
+                                    self.channel_names.append(ch_object.Name)
+                                    self.channel_types.append(ch_type)
+                                    self.channel_sample_rates.append(sample_rate)
                                     self.csv_writer.h2_channels.append(
                                         ch_object.Name + " (" + str(ch_object.SampleRate) + ")")
                                     if channel > 0:
@@ -204,6 +216,9 @@ class TrignoBase():
         self.TrigBase.Stop()
         print("Data Collection Complete")
         self.csv_writer.data = self.collection_data_handler.DataHandler.allcollectiondata
+        stop_stream = getattr(self.collection_data_handler, 'stop_lsl_stream', None)
+        if callable(stop_stream):
+            stop_stream()
 
     # ---------------------------------------------------------------------------------
     # ---- Helper Functions
@@ -229,3 +244,19 @@ class TrignoBase():
         sensor = self.TrigBase.GetSensorObject(curSensor)
         if mode == setMode:
             print("(" + str(sensor.PairNumber) + ") " + str(sensor.FriendlyName) +" Mode Change Successful")
+
+    # ---------------------------------------------------------------------------------
+    # ---- LSL Helper Properties
+
+    def get_emg_channel_labels(self):
+        if not hasattr(self, 'emgChannelsIdx') or not self.emgChannelsIdx:
+            return []
+        return [self.channel_names[idx] for idx in self.emgChannelsIdx if idx < len(self.channel_names)]
+
+    def get_emg_sample_rate(self):
+        if not hasattr(self, 'emgChannelsIdx') or not self.emgChannelsIdx:
+            return 0.0
+        idx = self.emgChannelsIdx[0]
+        if idx < len(self.channel_sample_rates):
+            return float(self.channel_sample_rates[idx])
+        return 0.0
