@@ -1,5 +1,6 @@
 from Channel import Channel
 
+
 class Component:
     """Component class wrapper for FileReaderAPI"""
 
@@ -69,7 +70,7 @@ class Component:
 
     def ChannelCount(self) -> int:
         """Component/Sensor Channel Count - Amount of channels collected by this sensor component"""
-        
+
         channelCount = len(self.component.Channels)
         return channelCount
 
@@ -104,7 +105,7 @@ class Component:
             channel = self.Channel(i)
             sampleRates.append(channel.SampleRate())
         return sampleRates
-    
+
     def GetAllUnits(self) -> str:
         """Return a list of all channel units for this sensor component"""
 
@@ -114,5 +115,3 @@ class Component:
             channel = self.Channel(i)
             units.append(channel.Units())
         return units
-
-

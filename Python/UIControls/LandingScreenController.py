@@ -2,7 +2,7 @@ from DataCollector.CollectDataWindow import CollectDataWindow
 from StartMenu.StartWindow import StartWindow
 
 
-class LandingScreenController():
+class LandingScreenController:
     def __init__(self):
         self.startWindow = StartWindow(self)
         self.collectWindow = CollectDataWindow(self)

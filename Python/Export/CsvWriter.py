@@ -20,16 +20,20 @@ class CsvWriter:
         self.h1_sensors.append("")
 
     def appendChannelHeader(self, channel):
-        self.h2_channels.append(channel.Name + " (" + str(round(channel.SampleRate, 3)) + ")")
+        self.h2_channels.append(
+            channel.Name + " (" + str(round(channel.SampleRate, 3)) + ")"
+        )
 
     def appendYTChannelHeader(self, channel):
         self.h2_channels.append(channel.Name + " Time Series")
-        self.h2_channels.append(channel.Name + " (" + str(round(channel.SampleRate, 3)) + ")")
+        self.h2_channels.append(
+            channel.Name + " (" + str(round(channel.SampleRate, 3)) + ")"
+        )
 
     def exportCSV(self):
         try:
-            with open(self.filename, 'w', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile, delimiter=',')
+            with open(self.filename, "w", newline="") as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=",")
                 maxlen = 0
 
                 csvwriter.writerow(self.h1_sensors)
@@ -54,7 +58,9 @@ class CsvWriter:
                     csvwriter.writerow(row)
 
         except PermissionError:
-            print("ERROR: CSV Export failed because the file is being used by another program")
+            print(
+                "ERROR: CSV Export failed because the file is being used by another program"
+            )
             return False
 
         except Exception as e:
@@ -65,8 +71,8 @@ class CsvWriter:
 
     def exportYTCSV(self):
         try:
-            with open(self.filename, 'w', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile, delimiter=',')
+            with open(self.filename, "w", newline="") as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=",")
                 maxlen = 0
 
                 csvwriter.writerow(self.h1_sensors)
@@ -97,7 +103,9 @@ class CsvWriter:
 
                     csvwriter.writerow(row)
         except PermissionError:
-            print("ERROR: CSV Export failed because the file is being used by another program")
+            print(
+                "ERROR: CSV Export failed because the file is being used by another program"
+            )
             return False
 
         except Exception:

@@ -2,6 +2,7 @@ from enum import Enum
 from uuid import UUID
 import numpy as np
 
+
 class Channel:
     """Channel class wrapper for FileReaderAPI"""
 
@@ -63,7 +64,6 @@ class Channel:
         channelWidth = int(self.channel.SamplesPerFrame)
         return channelWidth
 
-
     def LocalChannelNumber(self):
         """Channel Local Index - Channel index based on all the sensor component channels"""
 
@@ -71,42 +71,43 @@ class Channel:
         return localChannelNumber
 
     def Guid(self) -> str:
-        return self.channel.GuidString;
+        return self.channel.GuidString
 
     def Data(self):
         """Channel Data - All of the data associated with this channel during the collection"""
         return list(self.channel.GetYData(self.data))
 
+
 class Units(Enum):
-        Unknown = 0
-        VOLTS = 1
-        MILLIVOLTS = 2
-        G = 3
-        MICROTESLA = 4
-        DEG_S = 5
-        DEGS = 6
-        Quaternion = 7
-        QuaternionAccuracy = 8
-        Orientation = 9
-        OrientationAccuracy = 10
-        Hz = 11
-        Percentage = 12
-        N_4cm2 = 13
-        N = 14
-        Revolutions = 15
-        g_dl = 16
-        BPM = 17
-        METERS_SECOND = 18
-        METERS = 19
-        RPM = 20
-        RADIANS_S = 21
-        Nm = 22
-        WATTS = 23
-        Amplitude = 24
-        Kilograms = 25
-        Cycle = 26
-        L = 27
-        L_min = 28
-        mL_kg_min = 29
-        BrPM = 30,
-        mL_min = 31
+    Unknown = 0
+    VOLTS = 1
+    MILLIVOLTS = 2
+    G = 3
+    MICROTESLA = 4
+    DEG_S = 5
+    DEGS = 6
+    Quaternion = 7
+    QuaternionAccuracy = 8
+    Orientation = 9
+    OrientationAccuracy = 10
+    Hz = 11
+    Percentage = 12
+    N_4cm2 = 13
+    N = 14
+    Revolutions = 15
+    g_dl = 16
+    BPM = 17
+    METERS_SECOND = 18
+    METERS = 19
+    RPM = 20
+    RADIANS_S = 21
+    Nm = 22
+    WATTS = 23
+    Amplitude = 24
+    Kilograms = 25
+    Cycle = 26
+    L = 27
+    L_min = 28
+    mL_kg_min = 29
+    BrPM = (30,)
+    mL_min = 31

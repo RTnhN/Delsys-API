@@ -1,6 +1,7 @@
 from uuid import UUID
 from Component import Component
 
+
 class DelsysFile:
     """Delsys .shpf File Wrapper for FileReaderAPI"""
 
@@ -22,7 +23,7 @@ class DelsysFile:
 
     def GetAllData(self):
         """Return all of the data from all sensor/component channels"""
-        
+
         componentCount = self.ComponentCount()
         data = []
         for i in range(componentCount):

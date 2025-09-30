@@ -1,6 +1,7 @@
 """
 This class creates an instance of the Trigno base. Put your key and license here.
 """
+
 import threading
 import time
 from pythonnet import load
@@ -20,7 +21,7 @@ key = ""
 license = ""
 
 
-class TrignoBase():
+class TrignoBase:
     """
     AeroPy reference imported above then instantiated in the constructor below
     All references to TrigBase. call an AeroPy method (See AeroPy documentation for details)
@@ -66,16 +67,21 @@ class TrignoBase():
         self.all_scanned_sensors = self.TrigBase.GetScannedSensorsFound()
         print("Sensors Found:\n")
         for sensor in self.all_scanned_sensors:
-            print("(" + str(sensor.PairNumber) + ") " +
-                sensor.FriendlyName + "\n" +
-                sensor.Configuration.ModeString + "\n")
+            print(
+                "("
+                + str(sensor.PairNumber)
+                + ") "
+                + sensor.FriendlyName
+                + "\n"
+                + sensor.Configuration.ModeString
+                + "\n"
+            )
 
         self.SensorCount = len(self.all_scanned_sensors)
         for i in range(self.SensorCount):
             self.TrigBase.SelectSensor(i)
 
         return self.all_scanned_sensors
-
 
     def Start_Callback(self, start_trigger, stop_trigger):
         """Callback to start the data stream from Sensors"""
@@ -84,9 +90,11 @@ class TrignoBase():
 
         configured = self.ConfigureCollectionOutput()
         if configured:
-            #(Optional) To get YT data output pass 'True' to Start method
+            # (Optional) To get YT data output pass 'True' to Start method
             self.TrigBase.Start(self.collection_data_handler.streamYTData)
-            self.collection_data_handler.threadManager(self.start_trigger, self.stop_trigger)
+            self.collection_data_handler.threadManager(
+                self.start_trigger, self.stop_trigger
+            )
 
     def ConfigureCollectionOutput(self):
         if not self.start_trigger:
@@ -95,20 +103,18 @@ class TrignoBase():
         self.collection_data_handler.DataHandler.packetCount = 0
         self.collection_data_handler.DataHandler.allcollectiondata = []
 
-
         # Pipeline Armed when TrigBase.Configure already called.
         # This if block allows for sequential data streams without reconfiguring the pipeline each time.
         # Reset output data structure before starting data stream again
-        if self.TrigBase.GetPipelineState() == 'Armed':
+        if self.TrigBase.GetPipelineState() == "Armed":
             self.csv_writer.cleardata()
             for i in range(len(self.channelobjects)):
                 self.collection_data_handler.DataHandler.allcollectiondata.append([])
             return True
 
-
         # Pipeline Connected when sensors have been scanned in sucessfully.
         # Configure output data using TrigBase.Configure and pass args if you are using a start and/or stop trigger
-        elif self.TrigBase.GetPipelineState() == 'Connected':
+        elif self.TrigBase.GetPipelineState() == "Connected":
             self.csv_writer.clearall()
             self.channelcount = 0
             self.TrigBase.Configure(self.start_trigger, self.stop_trigger)
@@ -124,9 +130,13 @@ class TrignoBase():
                 self.channel_sample_rates = []
 
                 for i in range(self.SensorCount):
-
                     selectedSensor = self.TrigBase.GetSensorObject(i)
-                    print("(" + str(selectedSensor.PairNumber) + ") " + str(selectedSensor.FriendlyName))
+                    print(
+                        "("
+                        + str(selectedSensor.PairNumber)
+                        + ") "
+                        + str(selectedSensor.FriendlyName)
+                    )
 
                     # CSV Export Config
                     self.csv_writer.appendSensorHeader(selectedSensor)
@@ -150,61 +160,80 @@ class TrignoBase():
                                 self.channel_sample_rates.append(sample_rate)
                                 globalChannelIdx += 1
 
-                                #CSV Export Config
+                                # CSV Export Config
                                 if not self.collection_data_handler.streamYTData:
                                     self.csv_writer.appendChannelHeader(ch_object)
-                                    if channel > 0 & channel != len(selectedSensor.TrignoChannels):
+                                    if (
+                                        channel
+                                        > 0 & channel
+                                        != len(selectedSensor.TrignoChannels)
+                                    ):
                                         self.csv_writer.appendSensorHeaderSeperator()
                                 else:
                                     self.csv_writer.appendYTChannelHeader(ch_object)
                                     if channel == 0:
                                         self.csv_writer.appendSensorHeaderSeperator()
-                                    elif channel > 0 & channel != len(selectedSensor.TrignoChannels):
+                                    elif (
+                                        channel
+                                        > 0 & channel
+                                        != len(selectedSensor.TrignoChannels)
+                                    ):
                                         self.csv_writer.appendYTSensorHeaderSeperator()
 
-
-
-                            #NOTE: The self.channel_guids list is used to parse select channels during live data streaming in DataManager.py
+                            # NOTE: The self.channel_guids list is used to parse select channels during live data streaming in DataManager.py
                             #      this example will add all available channels to this list (above)
                             #      if you want to only parse certain channels then add only those channel guids to this list
                             #      for example: if you only want the EMG channels during live data streaming (flip bool above to false):
                             if not get_all_channels:
-                                if ch_type == 'EMG':
+                                if ch_type == "EMG":
                                     self.channel_guids.append(ch_guid)
                                     self.channel_names.append(ch_object.Name)
                                     self.channel_types.append(ch_type)
                                     self.channel_sample_rates.append(sample_rate)
                                     self.csv_writer.h2_channels.append(
-                                        ch_object.Name + " (" + str(ch_object.SampleRate) + ")")
+                                        ch_object.Name
+                                        + " ("
+                                        + str(ch_object.SampleRate)
+                                        + ")"
+                                    )
                                     if channel > 0:
                                         self.csv_writer.h1_sensors.append(",")
                                     globalChannelIdx += 1
 
-
-                            sample_rate = round(selectedSensor.TrignoChannels[channel].SampleRate, 3)
-                            print("----" + selectedSensor.TrignoChannels[channel].Name + " (" + str(sample_rate) + " Hz) " + str(selectedSensor.TrignoChannels[channel].Id))
+                            sample_rate = round(
+                                selectedSensor.TrignoChannels[channel].SampleRate, 3
+                            )
+                            print(
+                                "----"
+                                + selectedSensor.TrignoChannels[channel].Name
+                                + " ("
+                                + str(sample_rate)
+                                + " Hz) "
+                                + str(selectedSensor.TrignoChannels[channel].Id)
+                            )
                             self.channelcount += 1
                             self.channelobjects.append(channel)
-                            self.collection_data_handler.DataHandler.allcollectiondata.append([])
+                            self.collection_data_handler.DataHandler.allcollectiondata.append(
+                                []
+                            )
 
                             # NOTE: Plotting/Data Output: This demo does not plot non-EMG channel types such as
                             # accelerometer, gyroscope, magnetometer, and others. However, the data from channels
                             # that are excluded from plots are still available via output from PollData()
 
                             # ---- Plot EMG Channels
-                            if ch_type == 'EMG':
-                                self.emgChannelsIdx.append(globalChannelIdx-1)
+                            if ch_type == "EMG":
+                                self.emgChannelsIdx.append(globalChannelIdx - 1)
                                 self.plotCount += 1
 
                             # ---- Exclude non-EMG channels from plots
                             else:
                                 pass
 
-
-
-
                 if self.collection_data_handler.EMGplot:
-                    self.collection_data_handler.EMGplot.initiateCanvas(None, None, self.plotCount, 1, 20000)
+                    self.collection_data_handler.EMGplot.initiateCanvas(
+                        None, None, self.plotCount, 1, 20000
+                    )
 
                 return True
         else:
@@ -215,8 +244,10 @@ class TrignoBase():
         self.collection_data_handler.pauseFlag = True
         self.TrigBase.Stop()
         print("Data Collection Complete")
-        self.csv_writer.data = self.collection_data_handler.DataHandler.allcollectiondata
-        stop_stream = getattr(self.collection_data_handler, 'stop_lsl_stream', None)
+        self.csv_writer.data = (
+            self.collection_data_handler.DataHandler.allcollectiondata
+        )
+        stop_stream = getattr(self.collection_data_handler, "stop_lsl_stream", None)
         if callable(stop_stream):
             stop_stream()
 
@@ -236,25 +267,34 @@ class TrignoBase():
         else:
             return None
 
-
     def setSampleMode(self, curSensor, setMode):
         """Sets the sample mode for the selected sensor"""
         self.TrigBase.SetSampleMode(curSensor, setMode)
         mode = self.getCurMode(curSensor)
         sensor = self.TrigBase.GetSensorObject(curSensor)
         if mode == setMode:
-            print("(" + str(sensor.PairNumber) + ") " + str(sensor.FriendlyName) +" Mode Change Successful")
+            print(
+                "("
+                + str(sensor.PairNumber)
+                + ") "
+                + str(sensor.FriendlyName)
+                + " Mode Change Successful"
+            )
 
     # ---------------------------------------------------------------------------------
     # ---- LSL Helper Properties
 
     def get_emg_channel_labels(self):
-        if not hasattr(self, 'emgChannelsIdx') or not self.emgChannelsIdx:
+        if not hasattr(self, "emgChannelsIdx") or not self.emgChannelsIdx:
             return []
-        return [self.channel_names[idx] for idx in self.emgChannelsIdx if idx < len(self.channel_names)]
+        return [
+            self.channel_names[idx]
+            for idx in self.emgChannelsIdx
+            if idx < len(self.channel_names)
+        ]
 
     def get_emg_sample_rate(self):
-        if not hasattr(self, 'emgChannelsIdx') or not self.emgChannelsIdx:
+        if not hasattr(self, "emgChannelsIdx") or not self.emgChannelsIdx:
             return 0.0
         idx = self.emgChannelsIdx[0]
         if idx < len(self.channel_sample_rates):

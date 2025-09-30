@@ -3,7 +3,8 @@ from StartMenu.StartWindow import StartWindow
 import sys
 from PySide2.QtWidgets import *
 
-class FrameController():
+
+class FrameController:
     def __init__(self):
         self.startWindow = StartWindow(self)
         self.collectWindow = CollectDataWindow(self)
@@ -31,9 +32,6 @@ def main():
     controller = FrameController()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
-
-
-
-

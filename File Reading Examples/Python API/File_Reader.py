@@ -1,5 +1,6 @@
 from DelsysFile import DelsysFile
 
+
 class File_Reader:
     """File Reader Interface to FileReaderAPI"""
 
@@ -11,7 +12,8 @@ class File_Reader:
     def readFile(self, filePath):
         """Pass path to .shpf file - FileReaderAPI will parse the file"""
         import Delsys.FileManager.Reader as FM
-        self.filePath =  filePath
+
+        self.filePath = filePath
         self.reader = FM.DelsysFileReader(filePath)
 
     def ParsedFile(self) -> DelsysFile:
@@ -36,9 +38,9 @@ class File_Reader:
 
         readType = int(self.reader.FileType)
         if readType == 1:
-            fileType = '.shpf'
+            fileType = ".shpf"
         elif readType == 5:
-            fileType = '.delsys'
+            fileType = ".delsys"
         else:
-            fileType = 'Not a .shpf'
+            fileType = "Not a .shpf"
         return fileType

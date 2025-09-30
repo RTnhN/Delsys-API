@@ -18,10 +18,10 @@ except ImportError:  # pylsl is optional until installed
 
 clr.AddReference("System.Collections")
 
-app.use_app('PySide6')
+app.use_app("PySide6")
 
 
-class PlottingManagement():
+class PlottingManagement:
     def __init__(self, collect_data_window, metrics, emgplot=None):
         self.base = TrignoBase(self)
         self.collect_data_window = collect_data_window
@@ -29,13 +29,15 @@ class PlottingManagement():
         self.metrics = metrics
         self.packetCount = 0  # Number of packets received from base
         self.pauseFlag = True  # Flag to start/stop collection and plotting
-        self.DataHandler = DataKernel(self.base)  # Data handler for receiving data from base
+        self.DataHandler = DataKernel(
+            self.base
+        )  # Data handler for receiving data from base
         self.base.DataHandler = self.DataHandler
         self.outData = [[0]]
         self.Index = None
         self.newTransform = None
 
-        self.streamYTData = False # set to True to stream data in (T, Y) format (T = time stamp in seconds Y = sample value)
+        self.streamYTData = False  # set to True to stream data in (T, Y) format (T = time stamp in seconds Y = sample value)
         self.lsl_outlet = None
         self.lsl_info = None
         self.lsl_channel_labels = []
@@ -66,13 +68,19 @@ class PlottingManagement():
             if len(self.emg_plot) >= 2:
                 incData = self.emg_plot.popleft()  # Data at time T-1
                 try:
-                    self.outData = list(np.asarray(incData, dtype='object')[tuple([self.base.emgChannelsIdx])])
+                    self.outData = list(
+                        np.asarray(incData, dtype="object")[
+                            tuple([self.base.emgChannelsIdx])
+                        ]
+                    )
                 except IndexError:
                     print("Index Error Occurred: vispyPlot()")
                 if self.base.emgChannelsIdx and len(self.outData[0]) > 0:
                     try:
-                        self.EMGplot.plot_new_data(self.outData,
-                                                   [self.emg_plot[0][i][0] for i in self.base.emgChannelsIdx])
+                        self.EMGplot.plot_new_data(
+                            self.outData,
+                            [self.emg_plot[0][i][0] for i in self.base.emgChannelsIdx],
+                        )
                     except IndexError:
                         print("Index Error Occurred: vispyPlot()")
 
@@ -135,7 +143,9 @@ class PlottingManagement():
     def init_lsl_stream(self):
         if StreamOutlet is None:
             if not self._lsl_warning_logged:
-                print("pylsl not available - EMG data will not stream over LSL. Install pylsl to enable it.")
+                print(
+                    "pylsl not available - EMG data will not stream over LSL. Install pylsl to enable it."
+                )
                 self._lsl_warning_logged = True
             return
 
@@ -151,7 +161,14 @@ class PlottingManagement():
         if sample_rate <= 0:
             sample_rate = 0.0
 
-        info = StreamInfo('DelsysEMG', 'EMG', len(emg_labels), sample_rate, 'float32', self.lsl_stream_id)
+        info = StreamInfo(
+            "DelsysEMG",
+            "EMG",
+            len(emg_labels),
+            sample_rate,
+            "float32",
+            self.lsl_stream_id,
+        )
         channels = info.desc().append_child("channels")
         for label in emg_labels:
             channel = channels.append_child("channel")
