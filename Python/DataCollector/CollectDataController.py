@@ -39,7 +39,7 @@ class PlottingManagement():
         self.lsl_outlet = None
         self.lsl_info = None
         self.lsl_channel_labels = []
-        self.lsl_stream_id = f"delsys_trigno_{uuid.uuid4()}"
+        self.lsl_stream_id = f"delsys_trigno"
         self._lsl_warning_logged = False
 
     def streaming(self):
