@@ -22,6 +22,11 @@ class DataKernel:
         outArr = self.GetData()
         if outArr is not None:
             emg_chunk = self._extract_emg_chunk(outArr)
+            if len(self.allcollectiondata) < len(outArr):
+                # Ensure persistent buffers exist for every channel returned
+                self.allcollectiondata.extend(
+                    [] for _ in range(len(outArr) - len(self.allcollectiondata))
+                )
             for i in range(len(outArr)):
                 self.allcollectiondata[i].extend(outArr[i][0].tolist())
             try:
@@ -46,6 +51,10 @@ class DataKernel:
         """Processes the data from the DelsysAPI and place it in the data_queue argument"""
         outArr = self.GetYTData()
         if outArr is not None:
+            if len(self.allcollectiondata) < len(outArr):
+                self.allcollectiondata.extend(
+                    [] for _ in range(len(outArr) - len(self.allcollectiondata))
+                )
             for i in range(len(outArr)):
                 self.allcollectiondata[i].extend(outArr[i][0].tolist())
             try:
