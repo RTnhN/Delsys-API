@@ -151,6 +151,11 @@ class TrignoBase:
 
                             ch_guid = ch_object.Id
                             ch_type = str(ch_object.Type)
+                            sample_rate_value = getattr(ch_object, "SampleRate", 0.0)
+                            try:
+                                sample_rate = round(float(sample_rate_value), 3)
+                            except (TypeError, ValueError):
+                                sample_rate = 0.0
 
                             get_all_channels = True
                             if get_all_channels:
@@ -200,16 +205,13 @@ class TrignoBase:
                                         self.csv_writer.h1_sensors.append(",")
                                     globalChannelIdx += 1
 
-                            sample_rate = round(
-                                selectedSensor.TrignoChannels[channel].SampleRate, 3
-                            )
                             print(
                                 "----"
-                                + selectedSensor.TrignoChannels[channel].Name
+                                + ch_object.Name
                                 + " ("
                                 + str(sample_rate)
                                 + " Hz) "
-                                + str(selectedSensor.TrignoChannels[channel].Id)
+                                + str(ch_object.Id)
                             )
                             self.channelcount += 1
                             self.channelobjects.append(channel)
